@@ -1,0 +1,13 @@
+{
+  "name": "vibelink-website",
+  "version": "1.0.0",
+  "description": "vibeLink official website for Razorpay compliance",
+  "main": "index.html",
+  "scripts": {
+    "deploy": "vercel --prod",
+    "dev": "python -m http.server 8000"
+  },
+  "keywords": ["vibelink", "dating", "app", "social", "website"],
+  "author": "vibeLink Technologies",
+  "license": "MIT"
+}
