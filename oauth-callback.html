@@ -23,6 +23,8 @@
             border-radius: 1rem;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
         }
         .logo {
             font-size: 2rem;
@@ -55,36 +57,105 @@
             color: white;
             text-decoration: underline;
         }
+        .button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 8px;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">VibeLink</div>
-        <div class="message">Authentication successful!</div>
+        <div class="message">Authentication successful! 🎉</div>
         <div class="message">Redirecting to app...</div>
         <div class="spinner"></div>
+        
         <div class="fallback">
-            <a href="vibelink://auth/callback">Click here if not redirected automatically</a>
+            <p>If you're not redirected automatically:</p>
+            <a href="vibelink://auth/callback" class="button">Open VibeLink App</a>
+            <br>
+            <a href="vibelink://callback" class="button">Try Alternative Deep Link</a>
+            <br>
+            <a href="vibelink://" class="button">Try Simple Deep Link</a>
+            <br>
+            <a href="https://apps.apple.com/app/vibelink" class="button">Download iOS App</a>
+            <br>
+            <a href="https://play.google.com/store/apps/details?id=com.vibelink.app" class="button">Download Android App</a>
         </div>
     </div>
 
     <script>
-        // Try to redirect to the app immediately
+        // Function to redirect to the app
         function redirectToApp() {
-            const appUrl = 'vibelink://auth/callback';
+            // Try multiple deep link formats
+            const appUrls = [
+                'vibelink://auth/callback',
+                'vibelink://callback',
+                'vibelink://',
+                'vibelink://auth',
+                'vibelink://open'
+            ];
             
-            // Try to open the app
-            window.location.href = appUrl;
+            let currentIndex = 0;
             
-            // Fallback: if the app doesn't open, show a message
-            setTimeout(() => {
-                document.querySelector('.message').innerHTML = 'App not found. Please open VibeLink manually.';
-                document.querySelector('.spinner').style.display = 'none';
-            }, 3000);
+            function tryNextUrl() {
+                if (currentIndex < appUrls.length) {
+                    const appUrl = appUrls[currentIndex];
+                    console.log('Trying deep link:', appUrl);
+                    
+                    // Try to open the app
+                    window.location.href = appUrl;
+                    
+                    // Wait a bit and try the next URL if this one doesn't work
+                    setTimeout(() => {
+                        currentIndex++;
+                        tryNextUrl();
+                    }, 1000);
+                } else {
+                    // All URLs tried, show fallback
+                    document.querySelector('.message').innerHTML = 'App not found. Please use the buttons below.';
+                    document.querySelector('.spinner').style.display = 'none';
+                }
+            }
+            
+            tryNextUrl();
+        }
+
+        // Function to check if we're on mobile
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
         // Redirect when page loads
-        window.onload = redirectToApp;
+        window.onload = function() {
+            // If on mobile, try to redirect immediately
+            if (isMobile()) {
+                redirectToApp();
+            } else {
+                // On desktop, show a message and wait a bit
+                document.querySelector('.message').innerHTML = 'Please use the buttons below to open VibeLink.';
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        };
+
+        // Also try redirect on click
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.href.includes('vibelink://')) {
+                e.preventDefault();
+                redirectToApp();
+            }
+        });
     </script>
 </body>
 </html>
