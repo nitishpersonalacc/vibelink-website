@@ -3,132 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibeLink - OAuth Callback</title>
+    <title>VibeLink OAuth Callback</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #FF6B9D, #FF8E53);
-            color: white;
+            padding: 20px;
             text-align: center;
+            background-color: #f9f9f9;
         }
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 90%;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
         }
         .message {
-            margin-bottom: 1rem;
-            opacity: 0.9;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 16px;
         }
         .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
             width: 40px;
             height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid white;
-            border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 1rem auto;
+            margin-bottom: 20px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         .fallback {
-            margin-top: 2rem;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        .fallback a {
-            color: white;
-            text-decoration: underline;
+            display: none;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 600px;
         }
         .button {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            text-decoration: none;
             display: inline-block;
-            margin: 8px;
-            transition: all 0.3s ease;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
         }
         .button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+            background-color: #45a049;
+        }
+        .button-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .button-group h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        .debug-info {
+            position: fixed;
+            bottom: 50px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            max-width: 80%;
+            max-height: 60%;
+            overflow: auto;
+            text-align: left;
+            z-index: 1000;
+        }
+        .debug-info h3 {
+            margin-top: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">VibeLink</div>
-        <div class="message">Authentication successful! 🎉</div>
-        <div class="message">Redirecting to app...</div>
+        <h1>VibeLink Authentication</h1>
+        <p class="message">Redirecting to VibeLink app...</p>
         <div class="spinner"></div>
         
+        <!-- Safari-specific manual open section -->
+        <div id="safari-manual" style="display: none; margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px; border: 1px solid #dee2e6;">
+                <h3>Manual Open for Safari</h3>
+                <p>Safari may block automatic redirects. Try these options:</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button id="openVibeLink" style="padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Open VibeLink App</button>
+                    <button id="openExpoDev" style="padding: 10px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">Open Expo Dev Client</button>
+                    <button id="openExpoGo" style="padding: 10px; background-color: #6610f2; color: white; border: none; border-radius: 4px; cursor: pointer;">Open Expo Go</button>
+                </div>
+                
+                <div style="margin-top: 20px; border-top: 1px solid #dee2e6; padding-top: 15px;">
+                    <h4>Safari Workaround</h4>
+                    <p>If the buttons above don't work, try this:</p>
+                    <ol style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>Copy the URL using the button below</li>
+                        <li>Open Notes app and paste the URL</li>
+                        <li>Tap on the URL in Notes to open it</li>
+                    </ol>
+                    
+                    <div style="margin-top: 10px;">
+                        <input id="urlInput" type="text" placeholder="Paste URL here to open" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+                        <button id="openUrlButton" style="padding: 8px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%;">Open URL</button>
+                    </div>
+                </div>
+            </div>
+        
         <div class="fallback">
-            <p>If you're not redirected automatically:</p>
-            <a href="vibelink://auth/callback" class="button">Open VibeLink App</a>
-            <br>
-            <a href="vibelink://callback" class="button">Try Alternative Deep Link</a>
-            <br>
-            <a href="vibelink://" class="button">Try Simple Deep Link</a>
-            <br>
-            <a href="https://apps.apple.com/app/vibelink" class="button">Download iOS App</a>
-            <br>
-            <a href="https://play.google.com/store/apps/details?id=com.vibelink.app" class="button">Download Android App</a>
+            <p>If you're not redirected automatically, try one of these options:</p>
+            <!-- Fallback buttons will be dynamically added here by JavaScript -->
         </div>
     </div>
 
     <script>
         // Function to redirect to the app
         function redirectToApp() {
-            // Try multiple deep link formats
+            // Check if we're on Safari iOS for special handling
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+            
+            // Show Safari manual section if needed
+            if (isIOS && isSafari) {
+                document.getElementById('safari-manual').style.display = 'block';
+                
+                // Set up manual open buttons
+                // Create token hash if not already in URL
+                 let tokenHash = window.location.hash;
+                 if ((!tokenHash || tokenHash === '') && accessToken && refreshToken) {
+                     tokenHash = `#access_token=${encodeURIComponent(accessToken)}&refresh_token=${encodeURIComponent(refreshToken)}&expires_in=${expiresIn}&token_type=${tokenType}`;
+                 }
+                 
+                 document.getElementById('openVibeLink').addEventListener('click', function() {
+                     window.location.href = 'vibelink://auth/callback' + tokenHash;
+                 });
+                 
+                 document.getElementById('openExpoDev').addEventListener('click', function() {
+                     window.location.href = 'exp+vibelink://auth/callback' + tokenHash;
+                 });
+                 
+                 document.getElementById('openExpoGo').addEventListener('click', function() {
+                     // For Safari, use http:// instead of exp://
+                     window.location.href = 'http://127.0.0.1:8081/--/auth/callback' + tokenHash;
+                 });
+                 
+                 // Add a copy full URL button
+                 const copyFullUrlButton = document.createElement('button');
+                 copyFullUrlButton.textContent = 'Copy Full URL with Tokens';
+                 copyFullUrlButton.style.marginTop = '15px';
+                 copyFullUrlButton.style.padding = '10px';
+                 copyFullUrlButton.style.backgroundColor = '#fd7e14';
+                 copyFullUrlButton.style.color = 'white';
+                 copyFullUrlButton.style.border = 'none';
+                 copyFullUrlButton.style.borderRadius = '4px';
+                 copyFullUrlButton.style.width = '100%';
+                 copyFullUrlButton.style.cursor = 'pointer';
+                 
+                 copyFullUrlButton.addEventListener('click', function() {
+                     const fullUrl = 'http://127.0.0.1:8081/--/auth/callback' + tokenHash;
+                     navigator.clipboard.writeText(fullUrl).then(() => {
+                         copyFullUrlButton.textContent = 'URL Copied!';
+                         setTimeout(() => {
+                             copyFullUrlButton.textContent = 'Copy Full URL with Tokens';
+                         }, 2000);
+                     });
+                 });
+                 
+                 document.getElementById('safari-manual').querySelector('div').appendChild(copyFullUrlButton);
+                  
+                  // Set up URL input field handler
+                  document.getElementById('openUrlButton').addEventListener('click', function() {
+                      const inputUrl = document.getElementById('urlInput').value.trim();
+                      if (inputUrl) {
+                          window.location.href = inputUrl;
+                      }
+                  });
+                  
+                  // Pre-fill the URL input with a valid URL including tokens
+                  document.getElementById('urlInput').value = 'http://127.0.0.1:8081/--/auth/callback' + tokenHash;
+            }
+            
+            // Attempt to redirect to the app using different URL formats
             const appUrls = [
+                // Production app URLs
                 'vibelink://auth/callback',
                 'vibelink://callback',
                 'vibelink://',
                 'vibelink://auth',
-                'vibelink://open'
+                'vibelink://open',
+                
+                // Expo Development Client URLs
+                'exp+vibelink://auth/callback',
+                'exp+vibelink://callback',
+                'exp+vibelink://',
+                
+                // Expo Go URLs (localhost)
+                'exp://127.0.0.1:8081/--/auth/callback',
+                'exp://127.0.0.1:8081/--/callback',
+                'exp://127.0.0.1:8081/--/',
+                'exp://localhost:8081/--/auth/callback',
+                'exp://localhost:8081/--/callback',
+                'exp://localhost:8081/--/',
+                
+                // Expo Go URLs (LAN - common IP patterns)
+                'exp://192.168.1.2:8081/--/auth/callback',
+                'exp://192.168.1.2:8081/--/callback',
+                'exp://192.168.1.2:8081/--/',
+                
+                'exp://192.168.0.2:8081/--/auth/callback',
+                'exp://192.168.0.2:8081/--/callback',
+                'exp://192.168.0.2:8081/--/',
+                
+                'exp://10.0.0.2:8081/--/auth/callback',
+                'exp://10.0.0.2:8081/--/callback',
+                'exp://10.0.0.2:8081/--/',
+                
+                // Safari-friendly URLs (without exp:// protocol)
+                '//127.0.0.1:8081/--/auth/callback',
+                '//127.0.0.1:8081/--/callback',
+                '//localhost:8081/--/auth/callback',
+                '//localhost:8081/--/callback',
+                '//192.168.1.2:8081/--/auth/callback',
+                '//192.168.1.2:8081/--/callback',
+                '//192.168.0.2:8081/--/auth/callback',
+                '//192.168.0.2:8081/--/callback'
             ];
+            let currentUrlIndex = 0;
             
-            let currentIndex = 0;
+            // Extract tokens from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            let accessToken = urlParams.get('access_token');
+            let refreshToken = urlParams.get('refresh_token');
+            let expiresIn = urlParams.get('expires_in');
+            let tokenType = urlParams.get('token_type');
+            
+            // If tokens are not in URL params, try to extract from hash fragment
+            if (!accessToken || !refreshToken) {
+                const hash = window.location.hash.substring(1);
+                const hashParams = new URLSearchParams(hash);
+                accessToken = accessToken || hashParams.get('access_token');
+                refreshToken = refreshToken || hashParams.get('refresh_token');
+                expiresIn = expiresIn || hashParams.get('expires_in');
+                tokenType = tokenType || hashParams.get('token_type');
+            }
+            
+            // Create hash fragment with tokens
+            let authFragment = '';
+            if (accessToken && refreshToken) {
+                authFragment = `#access_token=${accessToken}&refresh_token=${refreshToken}`;
+                if (expiresIn) authFragment += `&expires_in=${expiresIn}`;
+                if (tokenType) authFragment += `&token_type=${tokenType}`;
+                console.log('Auth tokens found and added to redirect URLs');
+            } else {
+                console.log('Warning: No auth tokens found in URL or hash fragment');
+            }
+            
+            // Add debug info to page
+            const debugInfo = document.createElement('div');
+            debugInfo.className = 'debug-info';
+            debugInfo.style.display = 'none'; // Hidden by default
+            debugInfo.innerHTML = `
+                <h3>Debug Information</h3>
+                <p>URL: ${window.location.href}</p>
+                <p>Access Token: ${accessToken ? '***' + accessToken.substring(accessToken.length - 5) : 'Not found'}</p>
+                <p>Refresh Token: ${refreshToken ? '***' + refreshToken.substring(refreshToken.length - 5) : 'Not found'}</p>
+                <p>User Agent: ${navigator.userAgent}</p>
+            `;
+            document.body.appendChild(debugInfo);
+            
+            // Add debug toggle button
+            const debugButton = document.createElement('button');
+            debugButton.textContent = 'Show Debug Info';
+            debugButton.style.position = 'fixed';
+            debugButton.style.bottom = '10px';
+            debugButton.style.right = '10px';
+            debugButton.style.zIndex = '1000';
+            debugButton.onclick = function() {
+                if (debugInfo.style.display === 'none') {
+                    debugInfo.style.display = 'block';
+                    debugButton.textContent = 'Hide Debug Info';
+                } else {
+                    debugInfo.style.display = 'none';
+                    debugButton.textContent = 'Show Debug Info';
+                }
+            };
+            document.body.appendChild(debugButton);
             
             function tryNextUrl() {
-                if (currentIndex < appUrls.length) {
-                    const appUrl = appUrls[currentIndex];
-                    console.log('Trying deep link:', appUrl);
+                if (currentUrlIndex < appUrls.length) {
+                    let url = appUrls[currentUrlIndex] + authFragment;
+                    console.log(`Attempting to redirect to: ${url}`);
                     
-                    // Try to open the app
-                    window.location.href = appUrl;
+                    // iOS specific workaround for Safari
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                    const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
                     
-                    // Wait a bit and try the next URL if this one doesn't work
-                    setTimeout(() => {
-                        currentIndex++;
-                        tryNextUrl();
-                    }, 1000);
+                    // Transform URLs for Safari on iOS
+                    let originalUrl = url;
+                    if (isIOS && isSafari) {
+                        // For Safari, transform URLs starting with exp:// or exp+vibelink://
+                        if (url.startsWith('exp://')) {
+                            // Convert exp://192.168.1.2:8081 to http://192.168.1.2:8081
+                            url = 'http:' + url.substring(4);
+                        } else if (url.startsWith('//')) {
+                            // Convert //192.168.1.2:8081 to http://192.168.1.2:8081
+                            url = 'http:' + url;
+                        } else if (url.startsWith('exp+vibelink://')) {
+                            // For development client, try a different approach
+                            url = url.replace('exp+vibelink://', 'vibelink://');
+                        }
+                        console.log(`Transformed URL for Safari: ${url}`);
+                    }
+                     
+                    if (isIOS && isSafari) {
+                        // For Safari on iOS, we need to use a different approach
+                        // Create a link and simulate a click instead of using location.href
+                        const link = document.createElement('a');
+                        link.setAttribute('href', url);
+                        link.setAttribute('target', '_self');
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        
+                        // Clean up after a delay
+                        setTimeout(() => {
+                            document.body.removeChild(link);
+                        }, 1000);
+                    } else if (isIOS) {
+                        // For other browsers on iOS
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = url;
+                        document.body.appendChild(iframe);
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                        }, 1000);
+                    }
+                    
+                    // Try to open the URL (for non-iOS or non-Safari browsers)
+                    if (!(isIOS && isSafari)) {
+                        window.location.href = url;
+                    }
+                     
+                    // Add a copy button for the current URL attempt
+                    const copyButton = document.createElement('button');
+                    copyButton.textContent = 'Copy URL';
+                    copyButton.className = 'copy-button';
+                    copyButton.style.position = 'fixed';
+                    copyButton.style.bottom = '50px';
+                    copyButton.style.left = '10px';
+                    copyButton.style.zIndex = '1000';
+                    copyButton.style.padding = '8px 16px';
+                    copyButton.style.backgroundColor = '#007bff';
+                    copyButton.style.color = 'white';
+                    copyButton.style.border = 'none';
+                    copyButton.style.borderRadius = '4px';
+                    copyButton.style.cursor = 'pointer';
+                    
+                    copyButton.onclick = function() {
+                        navigator.clipboard.writeText(url).then(() => {
+                            copyButton.textContent = 'URL Copied!';
+                            setTimeout(() => {
+                                copyButton.textContent = 'Copy URL';
+                            }, 2000);
+                        });
+                    };
+                    
+                    // Remove any existing copy button
+                    const existingButton = document.querySelector('.copy-button');
+                    if (existingButton) {
+                        document.body.removeChild(existingButton);
+                    }
+                    
+                    document.body.appendChild(copyButton);
+                    
+                    // Add Safari-specific message if needed
+                    if (isIOS && isSafari) {
+                        const safariMessage = document.createElement('div');
+                        safariMessage.className = 'safari-message';
+                        safariMessage.style.position = 'fixed';
+                        safariMessage.style.top = '10px';
+                        safariMessage.style.left = '10px';
+                        safariMessage.style.right = '10px';
+                        safariMessage.style.backgroundColor = '#fff3cd';
+                        safariMessage.style.color = '#856404';
+                        safariMessage.style.padding = '10px';
+                        safariMessage.style.borderRadius = '4px';
+                        safariMessage.style.border = '1px solid #ffeeba';
+                        safariMessage.style.zIndex = '1000';
+                        safariMessage.innerHTML = '<strong>Safari Notice:</strong> If you see "Safari cannot open the page because the address is invalid", try copying the URL and pasting it into a note, then tap the URL in the note.';
+                        
+                        // Remove any existing message
+                        const existingMessage = document.querySelector('.safari-message');
+                        if (existingMessage) {
+                            document.body.removeChild(existingMessage);
+                        }
+                        
+                        document.body.appendChild(safariMessage);
+                    }
+                    
+                    // Update status message
+                    document.querySelector('.message').textContent = 
+                        `Trying to open app (${currentUrlIndex + 1}/${appUrls.length}): ${url.split('//')[0]}//...`;
+                    
+                    currentUrlIndex++;
+                    setTimeout(tryNextUrl, 2000); // Try the next URL after 2 seconds
                 } else {
-                    // All URLs tried, show fallback
-                    document.querySelector('.message').innerHTML = 'App not found. Please use the buttons below.';
+                    console.log('All redirect attempts failed. Showing fallback options.');
+                    document.querySelector('.fallback').style.display = 'block';
+                    document.querySelector('.message').textContent = 'Automatic redirection failed. Please try the options below:';
                     document.querySelector('.spinner').style.display = 'none';
                 }
             }
             
+            // Start the redirection process
             tryNextUrl();
         }
 
@@ -149,11 +458,154 @@
             }
         };
 
-        // Also try redirect on click
+        // Update the fallback links with auth tokens
+        function updateFallbackLinks() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let accessToken = urlParams.get('access_token');
+            let refreshToken = urlParams.get('refresh_token');
+            let expiresIn = urlParams.get('expires_in');
+            let tokenType = urlParams.get('token_type');
+            
+            // If tokens are not in URL params, try to extract from hash fragment
+            if (!accessToken || !refreshToken) {
+                const hash = window.location.hash.substring(1);
+                const hashParams = new URLSearchParams(hash);
+                accessToken = accessToken || hashParams.get('access_token');
+                refreshToken = refreshToken || hashParams.get('refresh_token');
+                expiresIn = expiresIn || hashParams.get('expires_in');
+                tokenType = tokenType || hashParams.get('token_type');
+            }
+            
+            // Create hash fragment with tokens
+            let authFragment = '';
+            if (accessToken && refreshToken) {
+                authFragment = `#access_token=${accessToken}&refresh_token=${refreshToken}`;
+                if (expiresIn) authFragment += `&expires_in=${expiresIn}`;
+                if (tokenType) authFragment += `&token_type=${tokenType}`;
+            }
+            
+            // Create buttons for different app types
+            const container = document.querySelector('.fallback');
+            container.innerHTML = '<p>If you\'re not redirected automatically, try one of these options:</p>';
+            
+            // Check if we're on Safari iOS for special handling
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+            
+            // Add Safari-specific notice if needed
+            if (isIOS && isSafari) {
+                const safariNotice = document.createElement('div');
+                safariNotice.style.backgroundColor = '#fff3cd';
+                safariNotice.style.color = '#856404';
+                safariNotice.style.padding = '10px';
+                safariNotice.style.borderRadius = '4px';
+                safariNotice.style.marginBottom = '15px';
+                safariNotice.style.border = '1px solid #ffeeba';
+                safariNotice.innerHTML = '<strong>Safari Users:</strong> For Expo links, you may need to copy the URL and paste it into a note, then tap the link there.';
+                container.appendChild(safariNotice);
+            }
+            
+            // Add button groups
+            const addButtonGroup = (title, links) => {
+                const group = document.createElement('div');
+                group.className = 'button-group';
+                group.innerHTML = `<h3>${title}</h3>`;
+                container.appendChild(group);
+                
+                links.forEach(link => {
+                    // Create a wrapper for button + copy button
+                    const buttonWrapper = document.createElement('div');
+                    buttonWrapper.style.display = 'flex';
+                    buttonWrapper.style.marginBottom = '10px';
+                    
+                    // Main button
+                    const button = document.createElement('a');
+                    button.href = link.url + authFragment;
+                    button.className = 'button';
+                    button.textContent = link.text;
+                    button.id = link.id;
+                    button.style.flex = '1';
+                    
+                    // For Safari on iOS, transform URLs if needed
+                    if (isIOS && isSafari && (link.url.startsWith('exp://') || link.url.startsWith('exp+vibelink://'))) {
+                        let transformedUrl = link.url;
+                        if (link.url.startsWith('exp://')) {
+                            // Add a data attribute with the transformed URL
+                            button.setAttribute('data-safari-url', 'http:' + link.url.substring(4) + authFragment);
+                        } else if (link.url.startsWith('exp+vibelink://')) {
+                            button.setAttribute('data-safari-url', link.url.replace('exp+vibelink://', 'vibelink://') + authFragment);
+                        }
+                    }
+                    
+                    buttonWrapper.appendChild(button);
+                    
+                    // Add copy button for Safari users
+                    if (isIOS && isSafari && (link.url.startsWith('exp://') || link.url.startsWith('exp+vibelink://'))) {
+                        const copyBtn = document.createElement('button');
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.style.marginLeft = '5px';
+                        copyBtn.style.padding = '5px 10px';
+                        copyBtn.style.backgroundColor = '#6c757d';
+                        copyBtn.style.color = 'white';
+                        copyBtn.style.border = 'none';
+                        copyBtn.style.borderRadius = '4px';
+                        copyBtn.onclick = function(e) {
+                            e.preventDefault();
+                            const urlToCopy = button.getAttribute('data-safari-url') || (link.url + authFragment);
+                            navigator.clipboard.writeText(urlToCopy).then(() => {
+                                copyBtn.textContent = 'Copied!';
+                                setTimeout(() => {
+                                    copyBtn.textContent = 'Copy';
+                                }, 2000);
+                            });
+                        };
+                        buttonWrapper.appendChild(copyBtn);
+                    }
+                    
+                    group.appendChild(buttonWrapper);
+                });
+            };
+            
+            // Add button groups for different app types
+            addButtonGroup('Production App', [
+                { id: 'mainDeepLink', url: 'vibelink://auth/callback', text: 'Open VibeLink App' },
+                { id: 'altDeepLink', url: 'vibelink://callback', text: 'Try Alternative Deep Link' },
+                { id: 'simpleDeepLink', url: 'vibelink://', text: 'Try Simple Deep Link' }
+            ]);
+            
+            addButtonGroup('Expo Development Client', [
+                { id: 'devClientDeepLink1', url: 'exp+vibelink://auth/callback', text: 'Open in Development Client' },
+                { id: 'devClientDeepLink2', url: 'exp+vibelink://', text: 'Simple Development Client Link' }
+            ]);
+            
+            addButtonGroup('Expo Go', [
+                { id: 'expoGoDeepLink1', url: 'exp://127.0.0.1:8081/--/auth/callback', text: 'Open in Expo Go (localhost)' },
+                { id: 'expoGoDeepLink2', url: 'exp://192.168.1.2:8081/--/auth/callback', text: 'Open in Expo Go (LAN)' }
+            ]);
+            
+            // Add Safari-friendly links group if on Safari
+            if (isIOS && isSafari) {
+                addButtonGroup('Safari-Friendly Links', [
+                    { id: 'safariLink1', url: 'http://127.0.0.1:8081/--/auth/callback', text: 'Safari Link (localhost)' },
+                    { id: 'safariLink2', url: 'http://192.168.1.2:8081/--/auth/callback', text: 'Safari Link (LAN)' }
+                ]);
+            }
+            
+            addButtonGroup('App Stores', [
+                { id: 'appStoreLink', url: 'https://apps.apple.com/app/vibelink', text: 'Download iOS App' },
+                { id: 'playStoreLink', url: 'https://play.google.com/store/apps/details?id=com.vibelink.app', text: 'Download Android App' }
+            ]);
+        }
+        
+        // Call the function to update links
+        updateFallbackLinks();
+        
+        // Handle click on deep link buttons
         document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A' && e.target.href.includes('vibelink://')) {
+            if (e.target.tagName === 'A' && e.target.id && 
+                (e.target.id === 'mainDeepLink' || e.target.id === 'altDeepLink' || e.target.id === 'simpleDeepLink')) {
                 e.preventDefault();
-                redirectToApp();
+                window.location.href = e.target.href;
             }
         });
     </script>
