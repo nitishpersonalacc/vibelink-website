@@ -1,13 +1,13 @@
 {
-  "name": "vibelink-website",
+  "name": "kuppleu-website",
   "version": "1.0.0",
-  "description": "vibeLink official website for Razorpay compliance",
+  "description": "KuppleU official website for Razorpay compliance",
   "main": "index.html",
   "scripts": {
     "deploy": "vercel --prod",
     "dev": "python -m http.server 8000"
   },
-  "keywords": ["vibelink", "dating", "app", "social", "website"],
-  "author": "vibeLink Technologies",
+  "keywords": ["kuppleu", "dating", "app", "social", "website"],
+  "author": "KuppleU Technologies",
   "license": "MIT"
 }

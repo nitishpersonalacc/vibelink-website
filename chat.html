@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat - KuppleU</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      background: #f9f9f9; 
+      margin: 0; 
+      padding: 20px;
+    }
+    .container { 
+      max-width: 1000px; 
+      margin: 0 auto; 
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .header h1 { color: #667eea; margin-bottom: 0.5rem; }
+    .header p { color: #666; margin-bottom: 1rem; }
+    
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1rem;
+      height: 600px;
+    }
+    
+    .conversations-list {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .conversations-header {
+      padding: 1rem;
+      background: #667eea;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .conversation-item {
+      padding: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .conversation-item:hover { background: #f8f9fa; }
+    .conversation-item.active { background: #e3f2fd; }
+    
+    .conversation-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .conversation-photo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 0.75rem;
+      border: 2px solid #667eea;
+    }
+    .conversation-name {
+      font-weight: bold;
+      color: #333;
+    }
+    .conversation-preview {
+      color: #666;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .chat-window {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-header {
+      padding: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+    }
+    .chat-header-photo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 0.75rem;
+      border: 2px solid #667eea;
+    }
+    .chat-header-info h3 {
+      margin: 0;
+      color: #333;
+    }
+    .chat-header-info p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      background: #f8f9fa;
+    }
+    
+    .message {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-end;
+    }
+    .message.sent { justify-content: flex-end; }
+    .message.received { justify-content: flex-start; }
+    
+    .message-content {
+      max-width: 70%;
+      padding: 0.75rem 1rem;
+      border-radius: 18px;
+      word-wrap: break-word;
+    }
+    .message.sent .message-content {
+      background: #667eea;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .message.received .message-content {
+      background: white;
+      color: #333;
+      border: 1px solid #e0e0e0;
+      border-bottom-left-radius: 4px;
+    }
+    
+    .message-time {
+      font-size: 0.75rem;
+      color: #999;
+      margin-top: 0.25rem;
+      text-align: center;
+    }
+    
+    .chat-input {
+      padding: 1rem;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 25px;
+      font-size: 1rem;
+    }
+    .chat-input button {
+      padding: 0.75rem 1.5rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .chat-input button:hover { background: #5a6fd8; }
+    
+    .no-conversation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #666;
+      text-align: center;
+    }
+    .no-conversation h3 { color: #667eea; margin-bottom: 1rem; }
+    
+    .no-conversations {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+    .no-conversations h3 { color: #667eea; margin-bottom: 1rem; }
+    .discover-btn {
+      background: #667eea;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .discover-btn:hover { background: #5a6fd8; }
+    
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid #667eea;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Home</a>
+    
+    <div class="header">
+      <h1>Chat with Your Matches</h1>
+      <p>Start conversations and build meaningful connections</p>
+    </div>
+
+    <div id="chatContainer">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading conversations...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configure Supabase
+    const SUPABASE_URL = 'https://ydyyvtnzegjpbsrnnaqj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkeXl2dG56ZWdqcGJzcm5uYXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3NDU1NTgsImV4cCI6MjA3MDMyMTU1OH0.7Ulmnkd0-TRpCQVuBBCn17VD7d4ajy_Nyw3M7vl2kn8';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let currentConversation = null;
+    let conversations = [];
+
+    // Check authentication
+    async function checkAuth() {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
+          showMessage('Please sign in to view conversations.', 'error');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2000);
+          return null;
+        }
+        currentUser = user;
+        return user;
+      } catch (error) {
+        console.error('Auth check error:', error);
+        return null;
+      }
+    }
+
+    // Load conversations from database
+    async function loadConversations() {
+      try {
+        // Get all swipes where current user is involved
+        const { data: swipes, error: swipesError } = await supabase
+          .from('swipes')
+          .select('*')
+          .or(`swiper_id.eq.${currentUser.id},swiped_id.eq.${currentUser.id}`);
+
+        if (swipesError) {
+          throw new Error(`Error loading swipes: ${swipesError.message}`);
+        }
+
+        // Find mutual matches
+        const userSwipes = swipes.filter(s => s.swiper_id === currentUser.id);
+        const userLikes = userSwipes.filter(s => s.direction === 'right' || s.direction === 'super');
+        
+        const likedByOthers = swipes.filter(s => 
+          s.swiped_id === currentUser.id && 
+          (s.direction === 'right' || s.direction === 'super')
+        );
+
+        // Find mutual matches (both users liked each other)
+        const mutualMatches = [];
+        for (const userLike of userLikes) {
+          const mutualLike = likedByOthers.find(s => s.swiper_id === userLike.swiped_id);
+          if (mutualLike) {
+            mutualMatches.push({
+              match: userLike,
+              mutualSwipe: mutualLike
+            });
+          }
+        }
+
+        if (mutualMatches.length === 0) {
+          showNoConversations();
+          return;
+        }
+
+        // Load profile details for matches
+        const matchUserIds = mutualMatches.map(m => m.match.swiped_id);
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('user_id', matchUserIds);
+
+        if (profilesError) {
+          throw new Error(`Error loading profiles: ${profilesError.message}`);
+        }
+
+        // Create conversation objects
+        conversations = mutualMatches.map(matchData => {
+          const profile = profiles.find(p => p.user_id === matchData.match.swiped_id);
+          return {
+            id: matchData.match.swiped_id,
+            profile: profile,
+            matchData: matchData,
+            lastMessage: null,
+            unreadCount: 0
+          };
+        });
+
+        // Display conversations
+        displayConversations();
+
+      } catch (error) {
+        console.error('Conversations loading error:', error);
+        showMessage(`Error loading conversations: ${error.message}`, 'error');
+      }
+    }
+
+    // Display conversations list
+    function displayConversations() {
+      const container = document.getElementById('chatContainer');
+      
+      if (conversations.length === 0) {
+        showNoConversations();
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="chat-layout">
+          <div class="conversations-list">
+            <div class="conversations-header">Conversations (${conversations.length})</div>
+            ${conversations.map(conv => `
+              <div class="conversation-item" onclick="selectConversation('${conv.id}')">
+                <div class="conversation-header">
+                  <img src="${conv.profile.photos && conv.profile.photos.length > 0 ? conv.profile.photos[0] : ''}" 
+                       alt="Profile" class="conversation-photo" 
+                       onerror="this.style.display='none'">
+                  <div>
+                    <div class="conversation-name">${conv.profile.full_name || 'Anonymous'}</div>
+                    <div class="conversation-preview">Tap to start chatting</div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="chat-window">
+            <div class="no-conversation">
+              <div>
+                <h3>Select a Conversation</h3>
+                <p>Choose someone from the list to start chatting</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Select a conversation
+    function selectConversation(userId) {
+      const conversation = conversations.find(c => c.id === userId);
+      if (!conversation) return;
+
+      currentConversation = conversation;
+      
+      // Update active state in conversations list
+      document.querySelectorAll('.conversation-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+
+      // Display chat interface
+      displayChat(conversation);
+    }
+
+    // Display chat interface
+    function displayChat(conversation) {
+      const chatWindow = document.querySelector('.chat-window');
+      
+      chatWindow.innerHTML = `
+        <div class="chat-header">
+          <img src="${conversation.profile.photos && conversation.profile.photos.length > 0 ? conversation.profile.photos[0] : ''}" 
+               alt="Profile" class="chat-header-photo" 
+               onerror="this.style.display='none'">
+          <div class="chat-header-info">
+            <h3>${conversation.profile.full_name || 'Anonymous'}</h3>
+            <p>${conversation.profile.age ? conversation.profile.age + ' years old' : ''} ${conversation.profile.location ? ' • ' + conversation.profile.location : ''}</p>
+          </div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+          <div class="message received">
+            <div class="message-content">
+              Hi! I'm ${conversation.profile.full_name || 'Anonymous'}. Nice to meet you! 👋
+            </div>
+            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+          </div>
+        </div>
+        
+        <div class="chat-input">
+          <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      `;
+
+      // Focus on input
+      document.getElementById('messageInput').focus();
+    }
+
+    // Handle key press in message input
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    // Send message
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+      
+      if (!message || !currentConversation) return;
+
+      // Add message to chat
+      addMessage(message, 'sent');
+      
+      // Clear input
+      input.value = '';
+      
+      // Simulate reply after 1-3 seconds
+      setTimeout(() => {
+        const replies = [
+          "That's interesting! Tell me more about yourself.",
+          "I'd love to hear more about your interests!",
+          "What do you like to do for fun?",
+          "That sounds amazing! I'm curious to learn more.",
+          "I think we have a lot in common!",
+          "Thanks for sharing that with me.",
+          "I'm really enjoying our conversation!",
+          "What are your plans for the weekend?"
+        ];
+        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+        addMessage(randomReply, 'received');
+      }, 1000 + Math.random() * 2000);
+    }
+
+    // Add message to chat
+    function addMessage(content, type) {
+      const chatMessages = document.getElementById('chatMessages');
+      if (!chatMessages) return;
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+      messageDiv.innerHTML = `
+        <div class="message-content">${content}</div>
+        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+      `;
+
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Show no conversations message
+    function showNoConversations() {
+      const container = document.getElementById('chatContainer');
+      container.innerHTML = `
+        <div class="no-conversations">
+          <h3>No Conversations Yet</h3>
+          <p>You need to match with someone first before you can start chatting. Keep swiping to find your perfect match!</p>
+          <a href="discover.html" class="discover-btn">Start Discovering</a>
+        </div>
+      `;
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async function() {
+      const user = await checkAuth();
+      if (user) {
+        await loadConversations();
+      }
+    });
+  </script>
+</body>
+</html>
