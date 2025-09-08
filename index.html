@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vibeLink - Social Dating App | Find Your Perfect Match</title>
-    <meta name="description" content="vibeLink is a social dating app that connects people through shared interests and local events. Join communities, attend events, and find meaningful relationships.">
+    <title>KuppleU - Social Dating App | Find Your Perfect Match</title>
+    <meta name="description" content="KuppleU is a social dating app that connects people through shared interests and local events. Join communities, attend events, and find meaningful relationships.">
     <style>
         * {
             margin: 0;
@@ -157,6 +157,66 @@
             padding-top: 1rem;
             margin-top: 2rem;
         }
+        
+        /* App Navigation Section */
+        .app-nav {
+            background: #f8f9fa;
+            padding: 3rem 2rem;
+        }
+        .app-nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .app-nav h2 {
+            color: #667eea;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+        .app-nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .app-nav-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .app-nav-item:hover {
+            transform: translateY(-5px);
+        }
+        .app-nav-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .app-nav-item h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .app-nav-item p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .app-nav-btn {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .app-nav-btn:hover {
+            background: #5a6fd8;
+        }
+        
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2rem;
@@ -168,13 +228,16 @@
                 flex-direction: column;
                 align-items: center;
             }
+            .app-nav-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <nav class="nav">
-            <div class="logo">💕 vibeLink</div>
+            <div class="logo">💕 KuppleU</div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#features">Features</a></li>
@@ -198,8 +261,46 @@
         </div>
     </section>
 
+    <!-- App Navigation Section -->
+    <section class="app-nav">
+        <div class="app-nav-content">
+            <h2>Explore KuppleU</h2>
+            <p>Ready to start your journey? Complete your profile and discover amazing people!</p>
+            
+            <div class="app-nav-grid">
+                <a href="profile-setup.html" class="app-nav-item">
+                    <div class="app-nav-icon">👤</div>
+                    <h3>Complete Profile</h3>
+                    <p>Set up your dating profile with photos, bio, and interests to start matching</p>
+                    <button class="app-nav-btn">Setup Profile</button>
+                </a>
+                
+                <a href="discover.html" class="app-nav-item">
+                    <div class="app-nav-icon">🔍</div>
+                    <h3>Discover People</h3>
+                    <p>Swipe through profiles and find people who share your interests</p>
+                    <button class="app-nav-btn">Start Discovering</button>
+                </a>
+                
+                <a href="matches.html" class="app-nav-item">
+                    <div class="app-nav-icon">💕</div>
+                    <h3>View Matches</h3>
+                    <p>See who liked you back and start meaningful conversations</p>
+                    <button class="app-nav-btn">View Matches</button>
+                </a>
+                
+                <a href="chat.html" class="app-nav-item">
+                    <div class="app-nav-icon">💬</div>
+                    <h3>Chat & Connect</h3>
+                    <p>Message your matches and build genuine connections</p>
+                    <button class="app-nav-btn">Start Chatting</button>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <section class="section" id="features">
-        <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: #667eea;">Why Choose vibeLink?</h2>
+        <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: #667eea;">Why Choose KuppleU?</h2>
         <div class="features">
             <div class="feature">
                 <div class="feature-icon">🔥</div>
@@ -235,17 +336,17 @@
     </section>
 
     <section class="section" id="about" style="background: #f8f9fa;">
-        <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: #667eea;">About vibeLink</h2>
+        <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: #667eea;">About KuppleU</h2>
         <div style="max-width: 800px; margin: 0 auto; text-align: center;">
             <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
-                vibeLink is more than just a dating app - it's a platform for building genuine connections through shared experiences and interests.
+                KuppleU is more than just a dating app - it's a platform for building genuine connections through shared experiences and interests.
             </p>
             <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
                 Founded with the belief that meaningful relationships start with common ground, we help people connect not just through photos, 
                 but through the activities, events, and communities they're passionate about.
             </p>
             <p style="font-size: 1.1rem;">
-                Join thousands of users who have found love, friendship, and community through vibeLink.
+                Join thousands of users who have found love, friendship, and community through KuppleU.
             </p>
         </div>
     </section>
@@ -283,7 +384,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 vibeLink. All rights reserved.</p>
+            <p>&copy; 2024 KuppleU. All rights reserved.</p>
         </div>
     </footer>
 </body>

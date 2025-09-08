@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "vibelink-website",
+  "name": "kuppleu-website",
   "builds": [
     {
       "src": "**/*.html",

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover - KuppleU</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      background: #f9f9f9; 
+      margin: 0; 
+      padding: 20px;
+    }
+    .container { 
+      max-width: 800px; 
+      margin: 0 auto; 
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .header h1 { color: #667eea; margin-bottom: 0.5rem; }
+    .header p { color: #666; margin-bottom: 1rem; }
+    
+    .profile-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      position: relative;
+      cursor: grab;
+      transition: transform 0.2s;
+    }
+    .profile-card:active { cursor: grabbing; }
+    
+    .profile-photos {
+      position: relative;
+      height: 400px;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+    .profile-photo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .profile-photo.active { opacity: 1; }
+    
+    .photo-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .photo-nav:hover { background: rgba(0,0,0,0.7); }
+    .photo-nav.prev { left: 10px; }
+    .photo-nav.next { right: 10px; }
+    
+    .photo-indicators {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+    }
+    .photo-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      cursor: pointer;
+    }
+    .photo-indicator.active { background: white; }
+    
+    .profile-info {
+      padding: 1.5rem;
+    }
+    .profile-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    .profile-age-location {
+      color: #666;
+      margin-bottom: 1rem;
+    }
+    .profile-bio {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .profile-interests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    .interest-tag {
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    .profile-preferences {
+      color: #666;
+      font-style: italic;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+    .btn-pass {
+      background: #e74c3c;
+      color: white;
+    }
+    .btn-pass:hover { background: #c0392b; }
+    .btn-like {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-like:hover { background: #229954; }
+    .btn-super {
+      background: #f39c12;
+      color: white;
+    }
+    .btn-super:hover { background: #e67e22; }
+    
+    .no-profiles {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+    .no-profiles h3 { color: #667eea; margin-bottom: 1rem; }
+    
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid #667eea;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .back-link:hover { text-decoration: underline; }
+    
+    .filter-section {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .filter-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .filter-row:last-child { margin-bottom: 0; }
+    .filter-label {
+      min-width: 100px;
+      font-weight: 500;
+    }
+    .filter-input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .filter-button {
+      background: #667eea;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .filter-button:hover { background: #5a6fd8; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to Home</a>
+    
+    <div class="header">
+      <h1>Discover Amazing People</h1>
+      <p>Swipe through profiles and find your perfect match</p>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-row">
+        <label class="filter-label">Age Range:</label>
+        <input type="number" id="minAge" class="filter-input" placeholder="Min Age" min="18" max="100">
+        <span>-</span>
+        <input type="number" id="maxAge" class="filter-input" placeholder="Max Age" min="18" max="100">
+      </div>
+      <div class="filter-row">
+        <label class="filter-label">Location:</label>
+        <input type="text" id="locationFilter" class="filter-input" placeholder="City, State, or Country">
+        <button class="filter-button" onclick="applyFilters()">Apply Filters</button>
+      </div>
+    </div>
+
+    <div id="profilesContainer">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Finding amazing people...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configure Supabase
+    const SUPABASE_URL = 'https://ydyyvtnzegjpbsrnnaqj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkeXl2dG56ZWdqcGJzcm5uYXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3NDU1NTgsImV4cCI6MjA3MDMyMTU1OH0.7Ulmnkd0-TRpCQVuBBCn17VD7d4ajy_Nyw3M7vl2kn8';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentProfiles = [];
+    let currentProfileIndex = 0;
+    let currentUser = null;
+
+    // Check authentication
+    async function checkAuth() {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
+          showMessage('Please sign in to view profiles.', 'error');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2000);
+          return null;
+        }
+        currentUser = user;
+        return user;
+      } catch (error) {
+        console.error('Auth check error:', error);
+        return null;
+      }
+    }
+
+    // Load profiles from database
+    async function loadProfiles() {
+      try {
+        let query = supabase
+          .from('profiles')
+          .select('*')
+          .neq('user_id', currentUser.id); // Exclude current user
+
+        // Apply filters
+        const minAge = document.getElementById('minAge').value;
+        const maxAge = document.getElementById('maxAge').value;
+        const location = document.getElementById('locationFilter').value;
+
+        if (minAge) query = query.gte('age', parseInt(minAge));
+        if (maxAge) query = query.lte('age', parseInt(maxAge));
+        if (location) query = query.ilike('location', `%${location}%`);
+
+        const { data: profiles, error } = await query;
+
+        if (error) {
+          throw new Error(`Error loading profiles: ${error.message}`);
+        }
+
+        if (!profiles || profiles.length === 0) {
+          showNoProfiles();
+          return;
+        }
+
+        currentProfiles = profiles;
+        currentProfileIndex = 0;
+        displayCurrentProfile();
+
+      } catch (error) {
+        console.error('Profile loading error:', error);
+        showMessage(`Error loading profiles: ${error.message}`, 'error');
+      }
+    }
+
+    // Display current profile
+    function displayCurrentProfile() {
+      if (currentProfileIndex >= currentProfiles.length) {
+        showNoProfiles();
+        return;
+      }
+
+      const profile = currentProfiles[currentProfileIndex];
+      const container = document.getElementById('profilesContainer');
+
+      const profileCard = createProfileCard(profile);
+      container.innerHTML = '';
+      container.appendChild(profileCard);
+    }
+
+    // Create profile card HTML
+    function createProfileCard(profile) {
+      const card = document.createElement('div');
+      card.className = 'profile-card';
+
+      const photos = profile.photos || [];
+      const hasPhotos = photos.length > 0;
+
+      card.innerHTML = `
+        <div class="profile-photos">
+          ${hasPhotos ? photos.map((photo, index) => `
+            <img src="${photo}" alt="Photo ${index + 1}" class="profile-photo ${index === 0 ? 'active' : ''}" data-index="${index}">
+          `).join('') : '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 1.2rem;">📷 No photos available</div>'}
+          
+          ${hasPhotos && photos.length > 1 ? `
+            <button class="photo-nav prev" onclick="changePhoto(-1)">‹</button>
+            <button class="photo-nav next" onclick="changePhoto(1)">›</button>
+            <div class="photo-indicators">
+              ${photos.map((_, index) => `
+                <div class="photo-indicator ${index === 0 ? 'active' : ''}" onclick="goToPhoto(${index})"></div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+        
+        <div class="profile-info">
+          <div class="profile-name">${profile.full_name || 'Anonymous'}</div>
+          <div class="profile-age-location">
+            ${profile.age ? profile.age + ' years old' : ''}
+            ${profile.location ? ' • ' + profile.location : ''}
+          </div>
+          
+          ${profile.bio ? `<div class="profile-bio">${profile.bio}</div>` : ''}
+          
+          ${profile.interests && profile.interests.length > 0 ? `
+            <div class="profile-interests">
+              ${profile.interests.map(interest => `
+                <span class="interest-tag">${interest}</span>
+              `).join('')}
+            </div>
+          ` : ''}
+          
+          ${profile.preferences ? `<div class="profile-preferences">Looking for: ${profile.preferences}</div>` : ''}
+          
+          <div class="action-buttons">
+            <button class="action-btn btn-pass" onclick="handleAction('pass')">✕ Pass</button>
+            <button class="action-btn btn-like" onclick="handleAction('like')">♥ Like</button>
+            <button class="action-btn btn-super" onclick="handleAction('super')">⭐ Super</button>
+          </div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // Handle photo navigation
+    let currentPhotoIndex = 0;
+    function changePhoto(direction) {
+      const photos = document.querySelectorAll('.profile-photo');
+      const indicators = document.querySelectorAll('.photo-indicator');
+      
+      if (photos.length <= 1) return;
+      
+      photos[currentPhotoIndex].classList.remove('active');
+      indicators[currentPhotoIndex].classList.remove('active');
+      
+      currentPhotoIndex = (currentPhotoIndex + direction + photos.length) % photos.length;
+      
+      photos[currentPhotoIndex].classList.add('active');
+      indicators[currentPhotoIndex].classList.add('active');
+    }
+
+    function goToPhoto(index) {
+      const photos = document.querySelectorAll('.profile-photo');
+      const indicators = document.querySelectorAll('.photo-indicator');
+      
+      photos[currentPhotoIndex].classList.remove('active');
+      indicators[currentPhotoIndex].classList.remove('active');
+      
+      currentPhotoIndex = index;
+      
+      photos[currentPhotoIndex].classList.add('active');
+      indicators[currentPhotoIndex].classList.add('active');
+    }
+
+    // Handle profile actions
+    async function handleAction(action) {
+      const profile = currentProfiles[currentProfileIndex];
+      
+      try {
+        // Record the action in the database
+        const { error } = await supabase
+          .from('swipes')
+          .insert([{
+            swiper_id: currentUser.id,
+            swiped_id: profile.user_id,
+            direction: action === 'pass' ? 'left' : action === 'like' ? 'right' : 'super',
+            created_at: new Date().toISOString()
+          }]);
+
+        if (error) {
+          console.warn('Swipe recording error:', error);
+        }
+
+        // Move to next profile
+        currentProfileIndex++;
+        currentPhotoIndex = 0;
+        displayCurrentProfile();
+
+      } catch (error) {
+        console.error('Action handling error:', error);
+      }
+    }
+
+    // Apply filters
+    function applyFilters() {
+      loadProfiles();
+    }
+
+    // Show no profiles message
+    function showNoProfiles() {
+      const container = document.getElementById('profilesContainer');
+      container.innerHTML = `
+        <div class="no-profiles">
+          <h3>No More Profiles</h3>
+          <p>You've seen all available profiles in your area. Check back later for new matches!</p>
+          <button class="action-btn btn-like" onclick="resetProfiles()" style="max-width: 200px; margin: 1rem auto;">View All Profiles Again</button>
+        </div>
+      `;
+    }
+
+    // Reset profiles to view all again
+    function resetProfiles() {
+      currentProfileIndex = 0;
+      loadProfiles();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async function() {
+      const user = await checkAuth();
+      if (user) {
+        await loadProfiles();
+      }
+    });
+  </script>
+</body>
+</html>
